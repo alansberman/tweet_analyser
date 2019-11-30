@@ -6,8 +6,9 @@ from flask import Flask, request, redirect, render_template
 
 app = Flask(__name__)
 
-@app.route("/")
+@app.route("/",methods=["POST","GET"])
 def home():
+    # if submitting a tweet        
     return render_template("home.html")
 
 
