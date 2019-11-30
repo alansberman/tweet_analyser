@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Tweet Analyser</title>
+    <script type="text/javascript">
+    var result = '{{result}}';
+    window.onload = function()
+    {
+    if (result==0){
+        console.log(result);
+        document.getElementById("classification").innerHTML="Negative";
+    }
+    else {
+        console.log(result);
+        document.getElementById("classification").innerHTML="Positive";
+    }
+    }
+    </script>
+</head>
+<body>
+   Tweet: "{{tweet}}"<br>
+   Sentiment of tweet:<div id="classification"></div>
+</body>
+</html>
+
