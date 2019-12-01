@@ -10,14 +10,16 @@ from flask import Flask, request, redirect, render_template, current_app, jsonif
 from flask_mysqldb import MySQL
 import mysql.connector
 from mysql.connector import Error
+import assets.config as config
 from ops import *
 app = Flask(__name__)
 app.config['SECRET_KEY']="yabbadabbado"
 # load classifier model on start 
 app.classifier = load_classifier()
 
-
-connection = mysql.connector.connect(host="localhost",database='mysql',user='admin',password='berman',auth_plugin='mysql_native_password')
+# Connect to MySQL using credentials from assets/config.py
+connection = mysql.connector.connect(host=config.mysql["host"],database=config.mysql['database'],
+user=config.mysql['user'],password=config.mysql['password'],auth_plugin=config.mysql['auth_plugin'])
 cursor = connection.cursor()
 #cursor = mysql.connection.cursor()
 # make Tweets table if not exists
@@ -71,6 +73,28 @@ def get_tweet(tweet_id):
     # else return that row of the Tweets DB
     return str(result),200
 
+# Deletes tweet from Tweets DB by ID
+# mysql-connect is a bit wonky, as it doesn't return how
+# many rows deleted (if any). Decided to leave delete functionality
+# in, though a fix would be nice
+@app.route("/api/tweet/<int:tweet_id>", methods=['DELETE'])
+def delete_tweet(tweet_id):
+    cursor = connection.cursor()
+    try:
+        cursor.execute("DELETE FROM Tweets WHERE id=%s",(tweet_id,))
+        connection.commit()
+        # Check if that tweet is still in Tweets DB
+        cursor.execute("SELECT * FROM Tweets WHERE id=%s",(tweet_id,))
+        result = cursor.fetchall()
+        cursor.close()
+        # If tweet not in Tweets, it has been deleted or was never there
+        if len(result)==0:
+            return "Deleted tweet {}/tweet not found.".format(tweet_id), 200
+        # If tweet still in Tweets
+        else:
+            abort(404,message="Failed to delete tweet {}".format(tweet_id))
+    except mysql.connector.Error as error:
+        return "Failed to delete tweet {}. Error: {}".format(tweet_id,str(error))
 
 
 # Submits tweet for sentiment analysis
