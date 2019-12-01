@@ -1,5 +1,6 @@
-# server.py
-# handles routes of the tweet analyser
+# API that receives tweets and performs sentiment analysis on them
+# Adds these tweets to a Tweets DB. Tweets can also be viewed, either by ID or all at once
+# Also, just for fun: a little website where one can submit a tweet and get its sentiment 
 # Author: Alan Berman
 
 # Adapted from https://programminghistorian.org/en/lessons/creating-apis-with-python-and-flask
@@ -8,6 +9,7 @@
 from flask import Flask, request, redirect, render_template, current_app, jsonify, abort
 from flask_mysqldb import MySQL
 import mysql.connector
+from mysql.connector import Error
 from ops import *
 app = Flask(__name__)
 app.config['SECRET_KEY']="yabbadabbado"
@@ -46,8 +48,8 @@ def result():
     result = classify_tweet(current_app.classifier,[tweet])
     return render_template("/result.html",tweet=tweet, result=result)
 
-# Get all tweets 
-@app.route("/api/tweets/all")
+# Gets all tweets in the Tweets database
+@app.route("/api/tweets/all", methods=['GET'])
 def get_all_tweets():
     cursor = connection.cursor()
     cursor.execute("SELECT * FROM Tweets")
@@ -55,20 +57,24 @@ def get_all_tweets():
     cursor.close()
     return "Tweets:\n\n"+str(result), 200
    
-# Get tweet by ID
-@app.route("/api/tweet/<int:tweet_id>")
+# Gets tweet by its ID in the Tweets databse
+# (ID must be known)
+@app.route("/api/tweet/<int:tweet_id>", methods=['GET'])
 def get_tweet(tweet_id):
     cursor = connection.cursor()
     # Thanks to https://stackoverflow.com/questions/54518722/mysql-connector-could-not-process-parameters
     cursor.execute("SELECT * FROM Tweets WHERE id=%s",(tweet_id,))
     result = cursor.fetchall()
-    # if tweet not found, 404
+    # if tweet not found in DB, 404
     if cursor.rowcount==0:
         abort(404)
     # else return that row of the Tweets DB
     return str(result),200
 
-# Submit tweet
+
+
+# Submits tweet for sentiment analysis
+# Also adds tweet to the Tweets DB
 # Tweet must be in JSON
 # e.g. {"author":"@johnwick","content":"I like puppies"}
 @app.route("/api/tweet",methods=["POST"])
@@ -77,7 +83,7 @@ def submit_tweet():
     if not request.json or not 'content' in request.json or not 'author' in request.json:
         abort(400)
     # Get sentiment classification of tweet
-    # must put content in a list otherwise scikit-learn returns an error
+    # content must in a list otherwise scikit-learn returns an error
     classification = classify_tweet(current_app.classifier,[request.json['content']])
     # Set sentiment according to classification
     if classification == 0:
@@ -89,7 +95,7 @@ def submit_tweet():
     cursor = connection.cursor()
     cursor.execute("""INSERT INTO Tweets(id,author,content,sentiment)
     VALUES (NULL,%s,%s,%s)""",(request.json['author'],request.json['content'],sentiment))
-    # Commit to db
+    # Commit to DB
     connection.commit()
     cursor.close()
     # return the sentiment

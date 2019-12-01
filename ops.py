@@ -1,4 +1,7 @@
-# Classifies tweets
+# Loads trained sklearn classifier using pickle
+# Classifies tweets using said classifier
+# Author: Alan Berman
+
 from flask_wtf import FlaskForm 
 from wtforms import TextField, SubmitField
 from wtforms.validators import DataRequired
@@ -15,6 +18,7 @@ def classify_tweet(classifier,tweet):
     prediction = classifier.predict(tweet)[0]
     return prediction
 
+# Just for fun
 # Form to submit tweets for classification
 # Thanks to https://hackersandslackers.com/forms-in-flask-wtforms/
 class TweetForm(FlaskForm):
