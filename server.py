@@ -106,6 +106,9 @@ def submit_tweet():
     # Return Bad Request if not JSON, or tweet doesn't list an author/have content
     if not request.json or not 'content' in request.json or not 'author' in request.json:
         abort(400)
+    # Return Bad Request if tweet too long
+    if len(request.json['content'])>280:
+        abort(400,message="Tweet too long.")
     # Get sentiment classification of tweet
     # content must in a list otherwise scikit-learn returns an error
     classification = classify_tweet(current_app.classifier,[request.json['content']])
