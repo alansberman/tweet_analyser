@@ -55,6 +55,7 @@ Tweets can be deleted by ID e.g. ```id=12```:
 If tweet is found, it is deleted from Tweets.
 
 For fun, one can also navigate to ```http://localhost:5000/``` and submit a tweet. The sentiment of the tweet is then displayed.
+Note: Tweets submitted this way are not added to the Tweets database.
 
 
 
