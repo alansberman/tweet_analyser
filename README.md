@@ -11,6 +11,9 @@ Technologies used:
   - ```Flask```
   - ```scikit-learn```
   - ```mysql-connector```
+  - ```HTML```
+  - ```Javascript```
+  - ```pandas```
   
 To run:
   1. Change MySQL credentials as needed in ```assets/config.py```
