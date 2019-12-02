@@ -14,7 +14,7 @@ Technologies used:
   
 To run:
   1. Change MySQL credentials as needed in ```assets/config.py```
-  2. ```flask run``` 
+  2. ```flask run```  (Note the port given, might be e.g. 8000)
   3. That's it!
 
 API Functions:
@@ -45,8 +45,19 @@ If the tweet is found, the tweet is returned else a 404 is returned
 
 All tweets (all records of the Tweets database) are returned
 
-4. Delete a tweet
+4. View all tweets by an author e.g. ```author=@jake``` 
 
+```curl -i http://localhost:5000/api/tweets/@jake```
+
+If tweet(s) by that author are found, the tweet(s) is/are returned else a 404 is returned
+
+5. View all tweets by sentiment e.g. ```sentiment=positive``` 
+
+```curl -i http://localhost:5000/api/tweets/sentiment/positive```
+
+If tweet(s) of that sentiment are found, the tweet(s) is/are returned else a 404 is returned
+
+6. Delete a tweet
 
 Tweets can be deleted by ID e.g. ```id=12```:
 
