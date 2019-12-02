@@ -59,7 +59,7 @@ def get_all_tweets():
     cursor.close()
     return "Tweets:\n\n"+str(result), 200
    
-# Gets tweet by its ID in the Tweets databse
+# Gets tweet by its ID in the Tweets database
 # (ID must be known)
 @app.route("/api/tweet/<int:tweet_id>", methods=['GET'])
 def get_tweet(tweet_id):
@@ -71,6 +71,34 @@ def get_tweet(tweet_id):
     if cursor.rowcount==0:
         abort(404)
     # else return that row of the Tweets DB
+    return str(result),200
+
+# Get all tweets by author
+# (author must be known)
+@app.route("/api/tweets/<string:author>", methods=['GET'])
+def get_tweets_by_author(author):
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM Tweets WHERE author LIKE %s",(author,))
+    result = cursor.fetchall()
+    # if author not found in DB, 404
+    if cursor.rowcount==0:
+        abort(404,"No tweets found by author {}".format(author))
+    # else return all tweets by that author
+    return str(result),200
+
+# Get all tweets by sentiment
+@app.route("/api/tweets/sentiment/<string:sentiment>", methods=['GET'])
+def get_tweets_by_sentiment(sentiment):
+    # check sentiment valid else 400
+    if sentiment.lower() != "positive" and sentiment.lower() != "negative":
+        abort(400,"Sentiment must be either 'negative' or 'positive'")
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM Tweets WHERE sentiment LIKE %s",(sentiment,))
+    result = cursor.fetchall()
+    # if no tweets with that sentiment are found in DB, 404
+    if cursor.rowcount==0:
+        abort(404,"No tweets found with sentiment '{}'.".format(sentiment))
+    # else return all tweets of that sentiment
     return str(result),200
 
 # Deletes tweet from Tweets DB by ID
@@ -92,7 +120,7 @@ def delete_tweet(tweet_id):
             return "Deleted tweet {}/tweet not found.".format(tweet_id), 200
         # If tweet still in Tweets
         else:
-            abort(404,message="Failed to delete tweet {}".format(tweet_id))
+            abort(404,"Failed to delete tweet {}".format(tweet_id))
     except mysql.connector.Error as error:
         return "Failed to delete tweet {}. Error: {}".format(tweet_id,str(error))
 
@@ -108,7 +136,7 @@ def submit_tweet():
         abort(400)
     # Return Bad Request if tweet too long
     if len(request.json['content'])>280:
-        abort(400,message="Tweet too long.")
+        abort(400,"Tweet too long.")
     # Get sentiment classification of tweet
     # content must in a list otherwise scikit-learn returns an error
     classification = classify_tweet(current_app.classifier,[request.json['content']])
