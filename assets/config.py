@@ -8,3 +8,4 @@ mysql = {
     "password": "berman",
     "auth_plugin": "mysql_native_password"
 }
+

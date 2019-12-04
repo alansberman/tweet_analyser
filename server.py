@@ -93,7 +93,7 @@ def get_tweets_by_sentiment(sentiment):
     if sentiment.lower() != "positive" and sentiment.lower() != "negative":
         abort(400,"Sentiment must be either 'negative' or 'positive'")
     cursor = connection.cursor()
-    cursor.execute("SELECT * FROM Tweets WHERE sentiment LIKE %s",(sentiment,))
+    cursor.execute("SELECT * FROM Tweets WHERE sentiment LIKE LOWER(%s)",(sentiment.lower(),))
     result = cursor.fetchall()
     # if no tweets with that sentiment are found in DB, 404
     if cursor.rowcount==0:
