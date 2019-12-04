@@ -1,6 +1,6 @@
 # tweet_analyser
 
-A small API that uses a trained ```scikit-learn``` classifier to perform sentiment analysis on tweets. These tweets
+A small API that uses a trained ```scikit-learn``` classifier to perform sentiment analysis on tweet-like objects. These tweets
 are added to a MySQL database 'Tweets'.
 
 A ```scikit-learn MultinomialNB``` classifier trained on the _Sentiment140_ tweets dataset is used to classify
